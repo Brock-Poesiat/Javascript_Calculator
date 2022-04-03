@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+    <title>Javascript Calculator by Brock Poesiat</title>
+
+    <style>
+      .header {
+        text-align: center;
+        margin: 10px;
+        font-size: 1.2em;
+        font: 1.4rem Inconsolata, monospace;
+        /* font-weight: bold; */
+      }
+      body {
+        background-color: lightblue;
+      }
+      .calculator {
+        background-color: grey;
+        text-align: center;
+        border: 2px solid black;
+        border-radius: 5px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 400px;
+      }
+      .calculator-inside {
+        text-align: center;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(6, 1fr);
+        grid-gap: 10px;
+        padding: 20px;
+      }
+      button {
+        height: auto;
+        font-size: 2rem!important;
+        background-color: #f8f8ff;
+      }
+      .display {
+        padding-right: 10px;
+        background-color: #f8f8ff;
+        grid-area:1/1/2/5;
+        text-align: right;
+        font: 2.3rem Inconsolata, monospace;
+      }
+      .ac-button {
+        grid-area:2/1/3/3;
+      }
+      .zero-button {
+        grid-area: 6/1/7/3;
+      }
+      .equals-button {
+        grid-area: 5/4/7/5;
+      }
+    </style>
+
+    <script>
+
+    function getDisplay(){
+      return document.getElementById('display').innerText;
+    }
+
+    function setDisplay(displayString){
+      document.getElementById('display').innerText = displayString;
+    }
+
+    function isOperator(character){
+      if (character.length != 1) {
+        throw "Error: only single character should be passed into isOperator function";
+      }
+      if (character.match(/\+|\-|\*|\//)) {
+        return true;
+      }
+      else {
+        return false;
+      }
+    }
+
+    function executeCalculation (calcString) {
+      // Format: add space between negatives so eval function can handle double negatives
+      let outputString = ""
+      for (let i = 0; i < calcString.length; i++){
+        outputString += calcString[i];
+        if(calcString[i] == "-"){
+          outputString += " ";
+        }
+      }
+      setDisplay(eval(outputString));
+    }
+
+    function repeatDecimal(display, value) {
+      // Returns true if more than one decimal inputted since last arithmetic operator
+      // This function is only called when the current value is "."
+      if (value != "."){
+        throw "Error: this function should only be called when decimal point inputted";
+      }
+      calcArr = display.split("");
+
+      // Decrement through calcArr; if decimal found before arithmetic operator, return true
+      for (let i = calcArr.length - 1; i >= 0; i --){
+        if (calcArr[i] == "."){
+          return true;
+        }
+        else if (isOperator(calcArr[i])){
+          return false;
+        }
+      }
+    }
+
+    function buttonClicked(value) {
+      let display = getDisplay();
+
+      // Handle click
+      if(value == "AC"){
+        setDisplay(0);
+      }
+      else if (value == "="){
+        executeCalculation(display);
+      }
+      else if  (display == 0){
+        setDisplay(value);
+      }
+
+      // "-" entered AND last entry is operator (+, -, *, /)
+      else if (value == "-" && isOperator(display[display.length - 1])){
+        if ((display.length == 1 && display[0] == "-") || display.length > 1 && isOperator(display[display.length - 2])) {
+          // More than two "-"s in a row: do nothing
+        }
+        else {
+          // Append display with "-"
+          document.getElementById('display').innerText += value;
+        }
+      }
+      else if ((display.length > 0) && (value == ".") && repeatDecimal(display, value)){
+        // Repeat decimal: do not append display
+      }
+      else if ((display.length > 0) && isOperator(display[display.length - 1]) && isOperator(value) ) {
+        // Repeat operator: replace last operator(s) with current operator
+        let arr = display.split("");
+        for (let i = display.length - 1; i >= 0; i--){
+          //get to a number
+          if(!isOperator(arr[i])){
+            arr.push(value);
+          }
+          else {
+            arr.pop();
+          }
+          display = arr.join("");
+          setDisplay(display);
+        }
+      }
+      // Append display with button clicked
+      else {
+        document.getElementById('display').innerText += value;
+      }
+    }
+    </script>
+
+  </head>
+  <body class"bg-light bg-gradient">
+    <div class="calculator">
+      <h2 class="header">Javascript Calculator by Brock Poesiat<h2>
+
+      <div id="calculator-inside" class ="calculator-inside">
+        <h2 id="display" class="display">0</h2>
+        <button onClick="buttonClicked(value)" value="AC" id="clear" class="ac-button">AC</button>
+        <button onClick="buttonClicked(value)" value="/" id="divide">/</button>
+        <button onClick="buttonClicked(value)" value="*" id="multiply">*</button>
+
+        <button onClick="buttonClicked(value)" value="7" id="seven">7</button>
+        <button onClick="buttonClicked(value)" value="8" id="eight">8</button>
+        <button onClick="buttonClicked(value)" value="9" id="nine">9</button>
+        <button onClick="buttonClicked(value)" value="-" id="subtract">-</button>
+
+        <button onClick="buttonClicked(value)" value="4" id="four">4</button>
+        <button onClick="buttonClicked(value)" value="5" id="five">5</button>
+        <button onClick="buttonClicked(value)" value="6" id="six">6</button>
+        <button onClick="buttonClicked(value)" value="+" id="add">+</button>
+
+        <button onClick="buttonClicked(value)" value="1" id="one">1</button>
+        <button onClick="buttonClicked(value)" value="2" id="two">2</button>
+        <button onClick="buttonClicked(value)" value="3" id="three">3</button>
+        <button onClick="buttonClicked(value)" value="=" id="equals" class="equals-button">=</button>
+
+        <button onClick="buttonClicked(value)" value="0" id="zero" class="zero-button">0</button>
+        <button onClick="buttonClicked(value)" value="." id="decimal">.</button>
+      </div>
+    </div>
+
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js"></script>
+  </body>
+</html>
