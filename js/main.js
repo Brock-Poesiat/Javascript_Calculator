@@ -19,7 +19,7 @@ function isOperator(character){
 }
 
 function executeCalculation (calcString) {
-  // Format: add space between negatives so eval function can handle double negatives
+  // Format: add space between negatives so eval() can handle double negatives
   let outputString = ""
   for (let i = 0; i < calcString.length; i++){
     outputString += calcString[i];
